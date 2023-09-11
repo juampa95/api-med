@@ -49,6 +49,7 @@ class Prescription(BaseModel, table=True):
     code: int
     patient_id: int = Field(foreign_key="patient.id")
     doctor_id: int = Field(foreign_key="doctor.id")
+
     prescriptionDetails: List["PrescriptionDetails"] = Relationship(back_populates="prescription")
     patient: Patient = Relationship(back_populates="prescriptions")
     doctor: Doctor = Relationship(back_populates="prescriptions")
@@ -56,8 +57,19 @@ class Prescription(BaseModel, table=True):
 
 class PrescriptionDetails(BaseModel, table=True):
     id: Optional[int] = Field(primary_key=True)
-    qty: int
     prescription_id: int = Field(foreign_key="prescription.id")
     medicine_id: int = Field(foreign_key="medicine.id")
+    qty: int
+
     prescription: Prescription = Relationship(back_populates="prescriptionDetails")
     medicine: Medicine = Relationship(back_populates="prescriptionDetails")
+
+
+
+class PrescriptionDetailsResponse(BaseModel):
+    id: int
+    qty: int
+    prescription_id: int
+    medicine_id: int
+    prescription: dict
+    medicine: dict

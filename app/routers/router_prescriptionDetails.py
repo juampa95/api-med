@@ -33,3 +33,4 @@ async def create_prescriptionDetail(object: model, session: Session = Depends(ge
     session.commit()
     session.refresh(object)
     return object
+
