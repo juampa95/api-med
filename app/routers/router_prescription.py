@@ -4,7 +4,9 @@ from sqlmodel import Session, select
 from app import models
 from app.models import Prescription as model
 from app.models import PrescriptionDetails as prescriptionDetailsModel
-from app.db import get_session  # Importa la función get_session desde db.py
+from app.models import PrescriptionDetailsResponse
+from app.db import get_session
+from datetime import datetime
 
 router = APIRouter(prefix="/prescription")
 
@@ -37,11 +39,12 @@ async def create_prescription(object: model, session: Session = Depends(get_sess
     return object
 
 
-@router.get("/prescription_details/{prescription_details_id}")
+@router.get("/prescription_details/{prescription_id}", response_model=PrescriptionDetailsResponse)
 async def get_prescription_details(prescription_id: int, session: Session = Depends(get_session)):
     try:
-        # Realiza la consulta a la base de datos para obtener la prescripción y sus detalles
+        # Consulta a tabla de prescripciones
         prescription = session.query(model).filter_by(id=prescription_id).first()
+        # Consulta a tabla de detalle de prescripciones
         prescription_details = session.query(prescriptionDetailsModel).filter_by(prescription_id=prescription_id).all()
 
         if not prescription:
@@ -67,16 +70,18 @@ async def get_prescription_details(prescription_id: int, session: Session = Depe
             for pd in prescription_details
         ]
 
-        response = {
-            "id": prescription.id,
-            "code": prescription.code,
-            "create_at": prescription.created_at,
-            "patient": patient_info,
-            "doctor": doctor_info,
-            "recipe": recipe
-        }
+        response = PrescriptionDetailsResponse(
+            id=prescription.id,
+            code=prescription.code,
+            recipe_created_at=prescription.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            patient=patient_info,
+            doctor=doctor_info,
+            recipe=recipe
+        )
 
         return response
 
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal Server Error")
