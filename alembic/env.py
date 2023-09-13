@@ -28,12 +28,14 @@ config.set_main_option('sqlalchemy.url', os.environ['DATABASE_URL'])
 fileConfig(config.config_file_name)
 
 
-from app.models import *
+from app.models import Base
+from app.models_unidosis import Base2
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 # target_metadata = models.Base.metadata
+# target_metadata = models_unidosis.Base2.metadata
 
 target_metadata = SQLModel.metadata
 
