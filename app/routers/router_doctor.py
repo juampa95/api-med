@@ -4,9 +4,12 @@ from sqlmodel import Session, select
 from app import models
 from app.models import Doctor as model
 from app.db import get_session  # Importa la función get_session desde db.py
+from app.routers.router_users import auth_handler
 
 router = APIRouter(prefix="/doctor")
 
+# router = APIRouter(prefix='doctor', dependencies=[Depends(auth_handler.auth_wrapper)])
+# esa linea obliga a que todos los endpoints del router exigan autenticacion prara ser usado
 
 @router.get("/list", response_model=List[model])
 async def get_doctors(session: Session = Depends(get_session)):
@@ -38,7 +41,8 @@ async def query_patient_by_personal_id(doctor_personal_id: int, session: Session
 
 
 @router.post("/create", response_model=model)
-async def create_doctor(object: model, session: Session = Depends(get_session)):
+async def create_doctor(object: model, session: Session = Depends(get_session),
+                        user=Depends(auth_handler.auth_wrapper)):
     session.add(object)
     session.commit()
     session.refresh(object)

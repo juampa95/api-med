@@ -55,4 +55,3 @@ async def create_unidosis_model(object: model, session: Session = Depends(get_se
     session.commit()
     session.refresh(object)
     return object
-

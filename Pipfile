@@ -10,6 +10,9 @@ uvicorn = "*"
 alembic = "*"
 psycopg2-binary = "2.9.6"
 python-dotenv = "*"
+passlib = "*"
+pyjwt = "*"
+bcrypt = "*"
 
 [dev-packages]
 

@@ -6,6 +6,7 @@ from app.routers import router_doctor
 from app.routers import router_prescription
 from app.routers import router_prescriptionDetails
 from app.routers import router_unidosis
+from app.routers import router_users
 from app.db import get_session
 from sqlmodel import Session, select
 from fastapi import HTTPException, Depends
@@ -34,6 +35,7 @@ app.include_router(router_doctor.router)
 app.include_router(router_prescription.router)
 app.include_router(router_prescriptionDetails.router)
 app.include_router(router_unidosis.router)
+app.include_router(router_users.router)
 
 
 if __name__ == "__main__":
