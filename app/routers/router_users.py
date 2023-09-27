@@ -18,24 +18,27 @@ async def register(user: UserInput, session: Session = Depends(get_session),
     users = session.exec(statement).all()
     if any(x.username == user.username for x in users):
         raise HTTPException(status_code=400, detail="Username is taken")
-    hased_pwd = auth_handler.get_password_hash(user.password)
+    hashed_pwd = auth_handler.get_password_hash(user.password)
 
-    # # Solo se permite a un administrador crear otro admin o doctores
-    # # Un doctor no podria crear otro doctor o un admin
-    # if usr_log.is_admin:
-    #     is_doctor = User.is_doctor
-    #     is_admin = User.is_admin
-    # else:
-    #     is_doctor = False
-    #     is_admin = False
-    # No funciona esta parte, no logro obtener los datos del usuario logueeado.
+    # Verificar si el usuario logueado es administrador o doctor
+    if usr_log.is_admin:
+        # El usuario logueado es administrador, puede crear un nuevo admin o doctor
+        is_admin = user.is_admin
+        is_doctor = user.is_doctor
+    elif usr_log.is_doctor:
+        # El usuario logueado es doctor, no puede crear ni admin ni doctor
+        is_admin = False
+        is_doctor = False
+    else:
+        # Otro caso, por ejemplo, si el usuario logueado no tiene un rol específico
+        raise HTTPException(status_code=403, detail="Unauthorized")
 
-
-    u = User(username=user.username, password=hased_pwd, email=user.email,
-             is_doctor=user.is_doctor, is_admin=user.is_admin)
+    u = User(username=user.username, password=hashed_pwd, email=user.email,
+             is_doctor=is_doctor, is_admin=is_admin)
     session.add(u)
     session.commit()
-    return JSONResponse(status_code=HTTP_201_CREATED)
+    response_content = {"message": "User registered successfully"}
+    return JSONResponse(status_code=HTTP_201_CREATED, content=response_content)
 
 @router.post('/login',tags=['users'])
 async def login(user: UserLogin, session: Session = Depends(get_session)):

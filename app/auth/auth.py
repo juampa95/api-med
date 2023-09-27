@@ -1,12 +1,14 @@
 import datetime
 
-from fastapi import Security, HTTPException
+from fastapi import Security, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from passlib.context import CryptContext
 import jwt
+from sqlmodel import Session
 from starlette import status
 from app.db import get_session
 from app.repos.user_repos import find_user
+from app.usr_models import User
 
 
 class AuthHandler:
@@ -40,17 +42,16 @@ class AuthHandler:
     def auth_wrapper(self, auth: HTTPAuthorizationCredentials = Security(security)):
         return self.decode_token(auth.credentials)
 
-    def get_current_user(self, auth: HTTPAuthorizationCredentials = Security(security)):
-        credentials_exceptions = HTTPException(
+    def get_current_user(self, auth: HTTPAuthorizationCredentials = Security(security),
+                         session: Session = Depends(get_session)):
+        credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Could not validate credentials'
         )
         username = self.decode_token(auth.credentials)
         if username is None:
-            raise credentials_exceptions
-
-        user = find_user(username)
+            raise credentials_exception
+        user = session.query(User).filter(User.username == username).first()
         if user is None:
-            raise credentials_exceptions
+            raise credentials_exception
         return user
-
