@@ -15,8 +15,3 @@ engine = create_engine(DATABASE_URL)
 def get_session():
     with Session(engine) as session:
         yield session
-
-# Función para obtener una sesión asincrónica
-async def get_async_session():
-    async with Session(engine) as session:
-        return session
