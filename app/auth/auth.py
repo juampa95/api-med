@@ -1,5 +1,4 @@
 import datetime
-
 from fastapi import Security, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from passlib.context import CryptContext
@@ -7,7 +6,6 @@ import jwt
 from sqlmodel import Session
 from starlette import status
 from app.db import get_session
-from app.repos.user_repos import find_user
 from app.usr_models import User
 
 
