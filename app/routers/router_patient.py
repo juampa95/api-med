@@ -2,10 +2,13 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from sqlmodel import Session, select
 from app import models
+from app.auth.auth import AuthHandler
 from app.models import Patient as model
 from app.db import get_session  # Importa la función get_session desde db.py
+from app.repos.auth_repos import verify_access
 
 router = APIRouter(prefix="/patient")
+auth_handler = AuthHandler()
 
 
 @router.get("/list", response_model=List[model])
@@ -38,7 +41,9 @@ async def query_patient_by_personal_id(patient_personal_id: int, session: Sessio
 
 
 @router.post("/create", response_model=model)
-async def create_patient(object: model, session: Session = Depends(get_session)):
+async def create_patient(object: model, session: Session = Depends(get_session),
+                         usr_log=Depends(auth_handler.get_current_user)):
+    verify_access(usr_log, ['ADMIN'])
     session.add(object)
     session.commit()
     session.refresh(object)

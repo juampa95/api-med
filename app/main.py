@@ -29,12 +29,12 @@ async def get_db_version(session: Session = Depends(get_session)):
     return {"last version": versions}
 
 
-app.include_router(router_medicine.router)
-app.include_router(router_patient.router)
-app.include_router(router_doctor.router)
-app.include_router(router_prescription.router)
-app.include_router(router_prescriptionDetails.router)
-app.include_router(router_unidosis.router)
+app.include_router(router_medicine.router, tags=["Medicine"])
+app.include_router(router_patient.router, tags=["Patient"])
+app.include_router(router_doctor.router, tags=["Doctor"])
+app.include_router(router_prescription.router, tags=["Prescription"])
+app.include_router(router_prescriptionDetails.router, tags=["Prescription"])
+app.include_router(router_unidosis.router, tags=["Unidosis"])
 app.include_router(router_users.router)
 
 

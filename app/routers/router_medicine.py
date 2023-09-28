@@ -6,7 +6,9 @@ from app.db import get_session  # Importa la función get_session desde db.py
 
 router = APIRouter(prefix="/medicine")
 
-@router.get("/list", response_model=List[models.Medicine])
+@router.get("/list", response_model=List[models.Medicine],
+            summary="Obtener una lista de medicamentos",
+            description="Esta ruta devuelve una lista de los medicamentos disponibles.")
 async def get_medicines(session: Session = Depends(get_session)):
     try:
         statement = select(models.Medicine)
