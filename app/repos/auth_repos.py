@@ -20,3 +20,12 @@ def verify_access(user, required_permissions: List[str]):
         raise HTTPException(status_code=401, detail='Unauthorized')
     if user.access_level not in required_permissions:
         raise HTTPException(status_code=403, detail='Forbidden')
+
+
+def check_access(user, required_permissions: List[str]):
+    if not user:
+        raise HTTPException(status_code=401, detail='Unauthorized')
+    if user.access_level in required_permissions:
+        return True
+    else:
+        return False

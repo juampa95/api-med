@@ -10,6 +10,7 @@ class AccessLevel(str,Enum):
     USER = 'USER'
     DOCTOR = 'DOCTOR'
     PATIENT = 'PATIENT'
+    NURSE = 'NURSE'
 
 
 class User(SQLModel, table=True):
@@ -18,8 +19,6 @@ class User(SQLModel, table=True):
     password: str = Field(max_length=256, min_length=6)
     email = EmailStr
     created_at: datetime.datetime = datetime.datetime.now()
-    is_doctor: bool = False
-    is_admin: bool = False
     access_level: AccessLevel = Field(default=AccessLevel.USER)
 
 
@@ -28,8 +27,6 @@ class UserInput(SQLModel):
     password: str = Field(max_length=256, min_length=6)
     password2: str
     email = EmailStr
-    is_doctor: bool = False
-    is_admin: bool = False
     access_level: AccessLevel = Field(default=AccessLevel.USER)
 
     @validator('password2')
@@ -41,4 +38,16 @@ class UserInput(SQLModel):
 class UserLogin(SQLModel):
     username: str
     password: str
+
+
+class ChangePwd(SQLModel):
+    newpassword: str = Field(max_length=256, min_length=6)
+    newpassword2: str
+    password: str
+
+    @validator('newpassword2')
+    def password_match(cls, v, values, **kwargs):
+        if 'newpassword' in values and v != values['newpassword']:
+            raise ValueError('passwords don\'t match')
+
 
