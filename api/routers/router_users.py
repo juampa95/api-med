@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import Session, select
-from app.usr_models import User, UserInput, UserLogin, ChangePwd
-from app.db import get_session
-from app.auth.auth import AuthHandler
-from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
+from api.models.usr_models import User, UserInput, UserLogin, ChangePwd
+from api.db import get_session
+from api.auth.auth import AuthHandler
+from starlette.status import HTTP_201_CREATED
 from starlette.responses import JSONResponse
-from app.repos.auth_repos import check_access
+from api.repos.auth_repos import check_access
 
 router = APIRouter(prefix="/users")
 auth_handler = AuthHandler()

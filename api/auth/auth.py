@@ -5,8 +5,8 @@ from passlib.context import CryptContext
 import jwt
 from sqlmodel import Session
 from starlette import status
-from app.db import get_session
-from app.usr_models import User
+from api.db import get_session
+from api.models.usr_models import User
 
 
 class AuthHandler:

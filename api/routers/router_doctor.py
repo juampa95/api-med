@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from sqlmodel import Session, select
-from app import models
-from app.models import Doctor as model
-from app.db import get_session  # Importa la función get_session desde db.py
-from app.routers.router_users import auth_handler
+# from api.models.models import Doctor as model
+from api.models.doctor_model import Doctor as model
+from api.db import get_session  # Importa la función get_session desde db.py
+from api.routers.router_users import auth_handler
 
 router = APIRouter(prefix="/doctor")
 

@@ -1,8 +1,8 @@
-from sqlmodel import Field, SQLModel, Relationship
-from datetime import date, datetime
-from typing import List, Optional
+from sqlmodel import Field, SQLModel
+from datetime import datetime
+from typing import Optional
 from pydantic import validator
-from app.models import Medicine
+from .medicine_model import Medicine
 
 
 class Base2(SQLModel):

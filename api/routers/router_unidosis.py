@@ -1,10 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
-from typing import List
 from sqlmodel import Session, select
-from app import models_unidosis
-from app.models_unidosis import UnidosisMedicine as model
-from app.db import get_session
-from app.models import Medicine
+from api.models.unidosis_model import UnidosisMedicine as model
+from api.db import get_session
+# from api.models.models import Medicine
+from api.models.medicine_model import Medicine
 
 router = APIRouter(prefix="/unidosis")
 

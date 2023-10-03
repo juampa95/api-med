@@ -1,14 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-from app.routers import router_medicine
-from app.routers import router_patient
-from app.routers import router_doctor
-from app.routers import router_prescription
-from app.routers import router_prescriptionDetails
-from app.routers import router_unidosis
-from app.routers import router_users
-from app.db import get_session
+from api.routers import router_medicine
+from api.routers import router_patient
+from api.routers import router_doctor
+from api.routers import router_prescription
+from api.routers import router_prescriptionDetails
+from api.routers import router_unidosis
+from api.routers import router_users
+from api.db import get_session
 from sqlmodel import Session, select
 from fastapi import HTTPException, Depends
 from sqlalchemy.sql import text

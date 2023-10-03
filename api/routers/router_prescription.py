@@ -1,12 +1,13 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from sqlmodel import Session, select
-from app import models
-from app.models import Prescription as model
-from app.models import PrescriptionDetails as prescriptionDetailsModel
-from app.models import PrescriptionDetailsResponse
-from app.db import get_session
-from datetime import datetime
+# from api.models.models import Prescription as model
+# from api.models.models import PrescriptionDetails as prescriptionDetailsModel
+# from api.models.models import PrescriptionDetailsResponse
+from api.models.perscription_model import Prescription as model
+from api.models.prescription_details_model import PrescriptionDetails as prescriptionDetailsModel
+from api.models.prescription_details_model import PrescriptionDetailsResponse
+from api.db import get_session
 
 router = APIRouter(prefix="/prescription")
 
