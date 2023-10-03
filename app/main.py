@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from app.routers import router_medicine
 from app.routers import router_patient
@@ -13,6 +14,14 @@ from fastapi import HTTPException, Depends
 from sqlalchemy.sql import text
 
 app = FastAPI()
+origin = ['*']
+
+app.add_middleware(CORSMiddleware,
+                   allow_origins=origin,
+                   allow_credentials=True,
+                   allow_methods=['*'],
+                   allow_headers=['*']
+                   )
 
 @app.get("/")
 async def root():
