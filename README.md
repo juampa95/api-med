@@ -17,6 +17,13 @@ involucrados en el suministro del medicamento especifico. Entre otras cosas, bus
   - Autenticacion mediante tokens JWT
   - Frontend React (pendiente)
 
-Este proyecto esta en constante desarrollo e innovacion por lo que no me encuentro atado a seguir 
-usando este esquema si veo que otro me dara mejores resultados para lo que estoy buscando. 
+El inicio de este proyecto, parte de el siguiente repositorio propio https://github.com/juampa95/api_vercel en donde
+se realizo un desarrollo similar, pero se desplego en Vercel. Actualmente se encuentra activo y es posible 
+acceder a su API y realizar diferentes solicitudes. En la version actual del proyecto, estas solicitudes estaran 
+limitadas al nivel de acceso que tenga la persona que este logueada en ese momento. 
+
+---
+
+**Este proyecto esta en constante desarrollo e innovacion por lo que no me encuentro obligado a seguir 
+usando el esquema propuesto.**
 
