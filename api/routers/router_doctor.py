@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from sqlmodel import Session, select
 # from api.models.models import Doctor as model
-from api.models.doctor_model import Doctor as model
+from api.models.doctor_model import Doctor as model, CreateDoctor
 from api.db import get_session  # Importa la función get_session desde db.py
 from api.routers.router_users import auth_handler
 
@@ -41,9 +41,10 @@ async def query_patient_by_personal_id(doctor_personal_id: int, session: Session
 
 
 @router.post("/create", response_model=model)
-async def create_doctor(object: model, session: Session = Depends(get_session),
+async def create_doctor(new_doctor: CreateDoctor, session: Session = Depends(get_session),
                         user=Depends(auth_handler.auth_wrapper)):
-    session.add(object)
+    doctor = model(**new_doctor.dict())
+    session.add(doctor)
     session.commit()
-    session.refresh(object)
-    return object
+    session.refresh(doctor)
+    return doctor

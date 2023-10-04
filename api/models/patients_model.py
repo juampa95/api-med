@@ -2,7 +2,7 @@ from datetime import date
 from sqlmodel import Field, SQLModel, Relationship
 from typing import List, Optional
 from pydantic import BaseModel, validator
-from .base_model import Person
+from api.models.base_model import Person
 
 
 class Patient(Person, table=True):

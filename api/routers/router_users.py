@@ -45,6 +45,22 @@ async def register(user: UserInput, session: Session = Depends(get_session),
     response_content = {"message": "User registered successfully"}
     return JSONResponse(status_code=HTTP_201_CREATED, content=response_content)
 
+# LINEAS PARA CREAR USUARIOS SIN AUTENTICACIÓN PREVIA
+
+# @router.post('/registration', status_code=201, tags=['users'], description='Register new user')
+# async def register(user: UserInput, session: Session = Depends(get_session)):
+#     statement = select(User)
+#     users = session.exec(statement).all()
+#     if any(x.username == user.username for x in users):
+#         raise HTTPException(status_code=400, detail="Username is taken")
+#
+#     # Asegúrate de que estás creando un usuario administrador con la contraseña "admin1234"
+#     u = User(username=user.username, password=auth_handler.get_password_hash("admin1234"), email=user.email, access_level="ADMIN")
+#     session.add(u)
+#     session.commit()
+#     response_content = {"message": "User registered successfully"}
+#     return JSONResponse(status_code=HTTP_201_CREATED, content=response_content)
+
 
 @router.post('/login', tags=['users'])
 async def login(user: UserLogin, session: Session = Depends(get_session)):

@@ -1,5 +1,13 @@
 from logging.config import fileConfig
 from sqlmodel import SQLModel
+from api.models import (medicine_model,
+                        patients_model,
+                        prescription_details_model,
+                        perscription_model,
+                        doctor_model,
+                        unidosis_model,
+                        usr_models
+                        )
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
@@ -10,10 +18,18 @@ from alembic import context
 # My code
 import os,sys
 from dotenv import load_dotenv
+from pathlib import Path
 
-BASE_DIR= os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-load_dotenv(os.path.join(BASE_DIR, '.env'))
-sys.path.append(BASE_DIR)
+# BASE_DIR= os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# load_dotenv(os.path.join(BASE_DIR, '.env'))
+# sys.path.append(BASE_DIR)
+
+current_dir = Path(__file__).resolve().parent
+project_dir = current_dir.parent
+
+BASE_DIR = Path(__file__).parent  # La carpeta que contiene env.py
+PROJECT_DIR = BASE_DIR.parent  # La carpeta principal de tu proyecto
+sys.path.insert(0, str(project_dir))
 
 
 # This is the Alembic Config object, which provides
@@ -31,7 +47,7 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-# target_metadata = models.Base.metadata
+# target_metadata = base_model.Base.metadata
 # target_metadata = models_unidosis.Base2.metadata
 
 target_metadata = SQLModel.metadata

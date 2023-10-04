@@ -1,8 +1,8 @@
-"""agregado de unidosis en nuevo modelo
+"""prueba
 
-Revision ID: ee209045b18a
-Revises: 445192c7884c
-Create Date: 2023-09-12 20:43:35.308211
+Revision ID: 5815e5305a85
+Revises: c6e6f73bcde6
+Create Date: 2023-10-03 20:39:28.071145
 
 """
 from typing import Sequence, Union
@@ -13,8 +13,8 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'ee209045b18a'
-down_revision: Union[str, None] = '445192c7884c'
+revision: str = '5815e5305a85'
+down_revision: Union[str, None] = 'c6e6f73bcde6'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
