@@ -13,6 +13,10 @@ python-dotenv = "*"
 passlib = "*"
 pyjwt = "*"
 bcrypt = "*"
+pandas = "*"
+openpyxl = "*"
+python-decouple = "*"
+python-multipart = "*"
 
 [dev-packages]
 

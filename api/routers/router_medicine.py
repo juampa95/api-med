@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, UploadFile
 from typing import List
 from sqlmodel import Session, select
 # from api.models import models
 from api.models.medicine_model import Medicine as model
 from api.db import get_session  # Importa la función get_session desde db.py
+from api.repos.medicine_load import validate_medicine
 
 router = APIRouter(prefix="/medicine")
 
@@ -28,9 +29,26 @@ async def get_medicine(medicine_id: int, session: Session = Depends(get_session)
         raise HTTPException(status_code=404, detail="Medicine not found")
     return medicine
 
+
 @router.post("/create", response_model=model)
 async def create_medicine(medicine: model, session: Session = Depends(get_session)):
     session.add(medicine)
     session.commit()
     session.refresh(medicine)
     return medicine
+
+
+@router.post("/upload_excel")
+async def upload_file(file: UploadFile, session: Session = Depends(get_session)):
+    medicine_dict = validate_medicine(file)
+    medicine_list = []
+
+    for item in medicine_dict:
+        medicine = model(**item)
+        session.add(medicine)
+        session.commit()
+        session.refresh(medicine)
+        medicine_list.append(medicine)
+
+    return {"message": "Archivo cargado exitosamente",
+            "data": medicine_dict}

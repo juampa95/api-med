@@ -1,3 +1,5 @@
 notes.md
 .env
 /prueba.py
+/data/
+/alembic/versions/

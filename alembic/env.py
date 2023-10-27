@@ -9,6 +9,8 @@ from api.models import (medicine_model,
                         usr_models
                         )
 
+from api.models.usr_models import AccessLevel
+
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
