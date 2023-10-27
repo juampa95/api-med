@@ -5,6 +5,10 @@ import io
 def validate_medicine(file):
     file_content = io.BytesIO(file.file.read())
     df = pd.read_excel(file_content).head(150)
+
+    # FORMATEO SEGUN EXCEL MODELO. VER COMO SE PUEDE CAMBIAR ESTO
+    # Mi idea es que se pueda seleccionar las columnas del excel origen
+    # y asignarles una columna destino de las que posee la tabla SQL.
     try:
         df = df.rename(columns={
             'TROQUEL': 'code',

@@ -37,7 +37,7 @@ async def create_medicine(medicine: model, session: Session = Depends(get_sessio
     session.refresh(medicine)
     return medicine
 
-
+# CARGA DE MEDICAMENTOS A PARTIR DE EXCEL.
 @router.post("/upload_excel")
 async def upload_file(file: UploadFile, session: Session = Depends(get_session)):
     medicine_dict = validate_medicine(file)
