@@ -4,20 +4,42 @@ from typing import List, Optional
 from pydantic import validator
 from .base_model import Base
 
+
+class Status(str,Enum):
+    AVAILABLE = 'AVAILABLE'
+    DISPENSED = 'DISPENSED'
+    APPLIED = 'APPLIED'
+    DESTROYED = 'DESTROYED'
+
+
 class MovementType(str,Enum):
     IN = 'IN'
     OUT = 'OUT'
-    DEV = 'DEV'
+    RETURN = 'RETURN'
+    DESTROY = 'DESTROY'
+    DISPENSE = 'DISPENSE'
+
+
 
 class Medicine(Base, table=True):
-    code: Optional[int]
+    """
+    Clase para crear medicamentos. Relacionada con el stock, prescripciones, etc.
+    """
+    provider_code: Optional[str]
     name: str
     drug: str
     concentration: str
-    form: Optional[str]
     gtin: str
+    form: Optional[str]
+    stock: int = 0
     prescriptionDetails: List["PrescriptionDetails"] = Relationship(back_populates="medicine")
     stockMedicine: List["StockMedicine"] = Relationship(back_populates="medicine")
+
+    @validator("stock", pre=True, always=True)
+    def validate_stock(cls, value):
+        if value <= 0:
+            raise ValueError("El stock no puede ser menor a 0")
+        return value
 
     @validator("gtin", pre=True, always=True)
     def validate_gtin_format(cls, value):
@@ -43,13 +65,21 @@ class Medicine(Base, table=True):
 
 
 class StockMedicine(Base, table=True):
+    """
+    Clase para ingresar al stock medicamentos unicos con un serial y medicine_id unicos.
+    Tambien tendremos el estado actual de cada medicamento, que eso se modificara desde
+    el back en funcion de los movimientos que quedaran registrados en la tabla StockMovements.
+    En caso de que el medicamento tenga estatus DISPENSED o APPLIED deberia indicar la receta
+    a la cual esta asignado.
+    """
     medicine_id: int = Field(foreign_key="medicine.id")
-    movement_type: MovementType
+    prescription_id: Optional[int] = Field(foreign_key="prescription.id")
+    status: Status
     serial: str
-    is_active: bool = True
-    accumulated_stock: int
 
+    prescription: "Prescription" = Relationship(back_populates="stockMedicine")
     medicine: Medicine = Relationship(back_populates="stockMedicine")
+    stockMovements: List["StockMovements"] = Relationship(back_populates="stockmedicine")
 
     __table_args__ = (
             UniqueConstraint('medicine_id', 'serial'),
@@ -61,14 +91,20 @@ class StockMedicine(Base, table=True):
             raise ValueError("El serial puede contener 21 caracteres")
         return value
 
-    @validator("accumulated_stock", pre=True, always=True)
-    def validate_stock(cls, value):
-        if value <= 0:
-            raise ValueError("El stock no puede ser menor a 0")
-        return value
+
+class StockMovements(Base, table=True):
+    """
+    En esa tabla, quedara un registro del movimiento de cada medicamento segun su id y serial.
+    Sirve para dar una trazabilidad a los medicamentos.
+    """
+    stock_medicine_id: int = Field(foreign_key='stockmedicine.id')
+    movement_type = MovementType
+
+    stockmedicine: StockMedicine = Relationship(back_populates="stockMovements")
 
 
 class LoadStockMedicine(SQLModel):
     medicine_id: int = Field(foreign_key="medicine.id")
+    status: Status = Status.AVAILABLE
     movement_type: MovementType = MovementType.IN
-    serial: str
+    serial: List[str]

@@ -4,9 +4,9 @@ from typing import List
 from sqlmodel import Session, select, func, and_
 # from api.models import models
 from api.models.medicine_model import Medicine as model
-from api.models.medicine_model import StockMedicine, LoadStockMedicine
+from api.models.medicine_model import StockMedicine, LoadStockMedicine, Status
 from api.db import get_session  # Importa la función get_session desde db.py
-from api.repos.medicine_load import validate_medicine
+from api.repos.medicine_load import validate_medicine, check_duplicate_medicine, get_stock
 
 router = APIRouter(prefix="/medicine")
 
@@ -62,31 +62,45 @@ async def upload_file(file: UploadFile, session: Session = Depends(get_session))
 async def load_medicine(load_medicine: LoadStockMedicine, session: Session = Depends(get_session)):
     medicine = session.get(model, load_medicine.medicine_id)  # Buscamos que exista ese medicine_id
     if not medicine:
-        raise HTTPException(status_code=404, detail="El medicamento no existe")
+        raise HTTPException(
+            status_code=404,
+            detail="El medicamento no existe")
 
-    accumulated_stock = (session.execute(select(func.sum(StockMedicine.accumulated_stock))
-                                         .where(and_(StockMedicine.medicine_id == load_medicine.medicine_id,
-                                                     StockMedicine.is_active == True
-                                                     )
-                                                )
-                                         )
-                         .scalar_one()
-                         )
+    try:
+        # with session.begin():
+            for serial in load_medicine.serial:
+                existing_medicine = check_duplicate_medicine(session, load_medicine.medicine_id, serial)
 
-    if accumulated_stock is None:
-        accumulated_stock = 0
+                if existing_medicine:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Ya existe un medicamento con el mismo medicine_id y serial.",
+                    )
 
-    stock_medicine = StockMedicine(
-        medicine_id=load_medicine.medicine_id,
-        movement_type=load_medicine.movement_type,
-        serial=load_medicine.serial,
-        is_active=True,
-        accumulated_stock=accumulated_stock + 1
-    )
+                stock_medicine = StockMedicine(
+                    medicine_id=load_medicine.medicine_id,
+                    status=load_medicine.status,
+                    movement_type=load_medicine.movement_type,
+                    serial=serial,
+                )
 
-    session.add(stock_medicine)
-    session.commit()
+                session.add(stock_medicine)
+                session.commit()
 
-    # Faltaria la funconalidad de agregar una lista de seriales del mismo medicamento para agilizar el proceso
+            in_stock = get_stock(session, load_medicine.medicine_id, Status.AVAILABLE)
 
-    return {"message": "Medicamento cargado exitosamente al stock", "data": stock_medicine}
+            if in_stock is None:
+                in_stock = 0
+
+            if in_stock < 0:
+                raise HTTPException(status_code=404, detail="Error en control de stock")
+
+            # Actualizamos el stock
+            medicine.stock = in_stock
+            session.add(medicine)
+            session.commit()
+
+            return {"message": "Medicamento cargado exitosamente al stock"}
+    except Exception as e:
+        # session.rollback()
+        raise e

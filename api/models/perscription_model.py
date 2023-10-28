@@ -15,3 +15,4 @@ class Prescription(Base, table=True):
     prescriptionDetails: List["PrescriptionDetails"] = Relationship(back_populates="prescription")
     patient: Patient = Relationship(back_populates="prescriptions")
     doctor: Doctor = Relationship(back_populates="prescriptions")
+    stockMedicine: List["StockMedicine"] = Relationship(back_populates="prescription")

@@ -9,15 +9,11 @@ class PrescriptionDetails(Base, table=True):
     prescription_id: int = Field(foreign_key="prescription.id")
     medicine_id: int = Field(foreign_key="medicine.id")
     qty: int
+    # assigned_serials: List[str] = []
 
     prescription: "Prescription" = Relationship(back_populates="prescriptionDetails")
     medicine: Medicine = Relationship(back_populates="prescriptionDetails")
 
-    # En este endpoint, deberia hacer que disminuya la cantidad de medicamentos cada vez que
-    # se asignee uno a la receta.
-    # Deberia ser capaz de validar que haya medicamentos, y asignar un estado is_active False a los
-    # seriales que se den de baja.
-    # Tambien deeberia recalcular el accumlated_stock. Queda pendiente para seguir desarrollando.
 
     @validator("qty", pre=True, always=True)
     def validate_qty(cls, value):
