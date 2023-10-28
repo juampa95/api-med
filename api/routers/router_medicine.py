@@ -87,4 +87,6 @@ async def load_medicine(load_medicine: LoadStockMedicine, session: Session = Dep
     session.add(stock_medicine)
     session.commit()
 
+    # Faltaria la funconalidad de agregar una lista de seriales del mismo medicamento para agilizar el proceso
+
     return {"message": "Medicamento cargado exitosamente al stock", "data": stock_medicine}
