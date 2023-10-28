@@ -1,12 +1,15 @@
 from fastapi import APIRouter, HTTPException, Depends, UploadFile
 from typing import List
-from sqlmodel import Session, select
+
+from sqlmodel import Session, select, func, and_
 # from api.models import models
 from api.models.medicine_model import Medicine as model
+from api.models.medicine_model import StockMedicine, LoadStockMedicine
 from api.db import get_session  # Importa la función get_session desde db.py
 from api.repos.medicine_load import validate_medicine
 
 router = APIRouter(prefix="/medicine")
+
 
 @router.get("/list", response_model=List[model],
             summary="Obtener una lista de medicamentos",
@@ -37,6 +40,7 @@ async def create_medicine(medicine: model, session: Session = Depends(get_sessio
     session.refresh(medicine)
     return medicine
 
+
 # CARGA DE MEDICAMENTOS A PARTIR DE EXCEL.
 @router.post("/upload_excel")
 async def upload_file(file: UploadFile, session: Session = Depends(get_session)):
@@ -52,3 +56,35 @@ async def upload_file(file: UploadFile, session: Session = Depends(get_session))
 
     return {"message": "Archivo cargado exitosamente",
             "data": medicine_dict}
+
+
+@router.post("/load")
+async def load_medicine(load_medicine: LoadStockMedicine, session: Session = Depends(get_session)):
+    medicine = session.get(model, load_medicine.medicine_id)  # Buscamos que exista ese medicine_id
+    if not medicine:
+        raise HTTPException(status_code=404, detail="El medicamento no existe")
+
+    accumulated_stock = (session.execute(select(func.sum(StockMedicine.accumulated_stock))
+                                         .where(and_(StockMedicine.medicine_id == load_medicine.medicine_id,
+                                                     StockMedicine.is_active == True
+                                                     )
+                                                )
+                                         )
+                         .scalar_one()
+                         )
+
+    if accumulated_stock is None:
+        accumulated_stock = 0
+
+    stock_medicine = StockMedicine(
+        medicine_id=load_medicine.medicine_id,
+        movement_type=load_medicine.movement_type,
+        serial=load_medicine.serial,
+        is_active=True,
+        accumulated_stock=accumulated_stock + 1
+    )
+
+    session.add(stock_medicine)
+    session.commit()
+
+    return {"message": "Medicamento cargado exitosamente al stock", "data": stock_medicine}

@@ -1,9 +1,13 @@
-from sqlmodel import Field, SQLModel, Relationship
+from sqlmodel import Field, SQLModel, Relationship, UniqueConstraint
+from enum import Enum
 from typing import List, Optional
 from pydantic import validator
 from .base_model import Base
 
-
+class MovementType(str,Enum):
+    IN = 'IN'
+    OUT = 'OUT'
+    DEV = 'DEV'
 
 class Medicine(Base, table=True):
     code: Optional[int]
@@ -13,6 +17,7 @@ class Medicine(Base, table=True):
     form: Optional[str]
     gtin: str
     prescriptionDetails: List["PrescriptionDetails"] = Relationship(back_populates="medicine")
+    stockMedicine: List["StockMedicine"] = Relationship(back_populates="medicine")
 
     @validator("gtin", pre=True, always=True)
     def validate_gtin_format(cls, value):
@@ -35,3 +40,35 @@ class Medicine(Base, table=True):
             value = "0" + value
 
         return value
+
+
+class StockMedicine(Base, table=True):
+    medicine_id: int = Field(foreign_key="medicine.id")
+    movement_type: MovementType
+    serial: str
+    is_active: bool = True
+    accumulated_stock: int
+
+    medicine: Medicine = Relationship(back_populates="stockMedicine")
+
+    __table_args__ = (
+            UniqueConstraint('medicine_id', 'serial'),
+    )
+
+    @validator("serial", pre=True, always=True)
+    def validate_serial_char(cls, value):
+        if len(value) > 21:
+            raise ValueError("El serial puede contener 21 caracteres")
+        return value
+
+    @validator("accumulated_stock", pre=True, always=True)
+    def validate_stock(cls, value):
+        if value <= 0:
+            raise ValueError("El stock no puede ser menor a 0")
+        return value
+
+
+class LoadStockMedicine(SQLModel):
+    medicine_id: int = Field(foreign_key="medicine.id")
+    movement_type: MovementType = MovementType.IN
+    serial: str
