@@ -37,7 +37,7 @@ class Medicine(Base, table=True):
 
     @validator("stock", pre=True, always=True)
     def validate_stock(cls, value):
-        if value <= 0:
+        if value < 0:
             raise ValueError("El stock no puede ser menor a 0")
         return value
 
@@ -108,3 +108,8 @@ class LoadStockMedicine(SQLModel):
     status: Status = Status.AVAILABLE
     movement_type: MovementType = MovementType.IN
     serial: List[str]
+
+
+class DispenseMedicine(SQLModel):
+    medicine_id: int = Field(foreign_key="medicine.id")
+    serials: List[str]

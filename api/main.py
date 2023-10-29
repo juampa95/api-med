@@ -8,6 +8,7 @@ from api.routers import router_prescription
 from api.routers import router_prescriptionDetails
 from api.routers import router_unidosis
 from api.routers import router_users
+from api.routers import router_dispensePrescription
 from api.db import get_session
 from sqlmodel import Session, select
 from fastapi import HTTPException, Depends
@@ -44,6 +45,7 @@ app.include_router(router_doctor.router, tags=["Doctor"])
 app.include_router(router_prescription.router, tags=["Prescription"])
 app.include_router(router_prescriptionDetails.router, tags=["Prescription"])
 app.include_router(router_unidosis.router, tags=["Unidosis"])
+app.include_router(router_dispensePrescription.router, tags=["Dispense"])
 app.include_router(router_users.router)
 
 
