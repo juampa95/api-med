@@ -111,5 +111,11 @@ class LoadStockMedicine(SQLModel):
 
 
 class DispenseMedicine(SQLModel):
+    """
+    Objeto utilizado para enviar informacion de los medicamentos incluidos en una receta,
+    ofrece dos modos de funcionamiento \n
+    1- En el body enviar una lista vacia, esto asignara los medicamentos mas antiguos a la receta. \n
+    2- En el body enviar una lista de DispenseMedicine, esto asignara a la receta el/los medicamentos segun el serial enviado
+    """
     medicine_id: int = Field(foreign_key="medicine.id")
     serials: List[str]

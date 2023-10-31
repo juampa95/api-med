@@ -6,10 +6,13 @@ from api.models.medicine_model import Medicine, DispenseMedicine, StockMedicine,
 from api.db import get_session
 from typing import List, Optional
 
-
 router = APIRouter(prefix="/dispensePrescription")
 
-@router.post("/dispense")
+
+@router.post("/dispense",
+             summary="Dispensar medicamentos según receta",
+             description="Ofrece dos modos de funcionamiento, pero siempre se debe proporcionar el id de la receta.  "
+                         "Consultar el Schema DispenseMedicine para mas información")
 async def create_dispense(prescription_id: int,
                           data: Optional[List[DispenseMedicine]],
                           session: Session = Depends(get_session)):
