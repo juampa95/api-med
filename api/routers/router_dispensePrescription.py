@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import Session, select, asc
 from api.models.prescription_details_model import PrescriptionDetails
-from api.models.perscription_model import Prescription
+from api.models.perscription_model import Prescription, PrescriptionStatus
 from api.models.medicine_model import Medicine, DispenseMedicine, StockMedicine, Status, MoveType, StockMovements
 from api.db import get_session
 from typing import List, Optional
@@ -14,7 +14,16 @@ async def create_dispense(prescription_id: int,
                           data: Optional[List[DispenseMedicine]],
                           session: Session = Depends(get_session)):
     try:
+        prescription = session.query(Prescription).filter_by(id=prescription_id).first()
+        if prescription.status != PrescriptionStatus.CREATED:
+            raise HTTPException(status_code=400, detail="La receta no se puede dispensar en su estado actual.")
+
         prescription_details = session.query(PrescriptionDetails).filter_by(prescription_id=prescription_id).all()
+        if not prescription_details:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No se encontraron detalles de receta para la receta con ID: {prescription_id}"
+            )
 
         for details in prescription_details:
             medicine_id = details.medicine_id
@@ -41,6 +50,7 @@ async def create_dispense(prescription_id: int,
                                   .order_by(asc(StockMedicine.created_at)).limit(details.qty).first()
                                   )
                     oldest_med.status = Status.DISPENSED
+                    oldest_med.prescription_id = prescription_id
 
                     # Después de cambiar el status en el stock, vamos a completar el registro de movimientos.
                     stock_movement = StockMovements(
@@ -51,8 +61,6 @@ async def create_dispense(prescription_id: int,
                     # Cambiar el valor de movement_type aquí
                     stock_movement.movement_type = MoveType.DISPENSE
                     session.commit()
-
-            return {"message": "Archivo cargado exitosamente"}
 
         else:
             for details in prescription_details:
@@ -66,6 +74,7 @@ async def create_dispense(prescription_id: int,
                                                                                     serial=serial,
                                                                                     status=Status.AVAILABLE).first()
                             medicine_dispensed.status = Status.DISPENSED
+                            medicine_dispensed.prescription_id = prescription_id
 
                             stock_movement = StockMovements(
                                 stock_medicine_id=medicine_dispensed.id,  # Asegúrate de tener el stock_medicine.id correcto
@@ -80,7 +89,11 @@ async def create_dispense(prescription_id: int,
                            f"o la cantidad proporcionada no es suficiente, necesita {details.qty} y se "
                            f"proporcionaron {len(item.serials)}")
 
-            return {"message": "Archivo cargado exitosamente"}
+        prescription.status = PrescriptionStatus.DISPENSED
+        session.commit()
+
+        return {"message": "Receta dispensada correctamente, "
+                           "Medicamentos asignados exitosamente"}
 
     except HTTPException as e:
         raise e
