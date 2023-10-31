@@ -12,7 +12,7 @@ class Status(str,Enum):
     DESTROYED = 'DESTROYED'
 
 
-class MovementType(str,Enum):
+class MoveType(str, Enum):
     IN = 'IN'
     OUT = 'OUT'
     RETURN = 'RETURN'
@@ -98,7 +98,7 @@ class StockMovements(Base, table=True):
     Sirve para dar una trazabilidad a los medicamentos.
     """
     stock_medicine_id: int = Field(foreign_key='stockmedicine.id')
-    movement_type = MovementType
+    movement_type: MoveType = Field(default=MoveType.IN)
 
     stockmedicine: StockMedicine = Relationship(back_populates="stockMovements")
 
@@ -106,7 +106,7 @@ class StockMovements(Base, table=True):
 class LoadStockMedicine(SQLModel):
     medicine_id: int = Field(foreign_key="medicine.id")
     status: Status = Status.AVAILABLE
-    movement_type: MovementType = MovementType.IN
+    movement_type: MoveType = MoveType.IN
     serial: List[str]
 
 

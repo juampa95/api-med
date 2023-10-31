@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import Session, select, asc
 from api.models.prescription_details_model import PrescriptionDetails
 from api.models.perscription_model import Prescription
-from api.models.medicine_model import Medicine, DispenseMedicine, StockMedicine, Status, MovementType, StockMovements
+from api.models.medicine_model import Medicine, DispenseMedicine, StockMedicine, Status, MoveType, StockMovements
 from api.db import get_session
 from typing import List, Optional
 
@@ -42,13 +42,17 @@ async def create_dispense(prescription_id: int,
                                   )
                     oldest_med.status = Status.DISPENSED
 
-                    # Despues de cambiar el status en el stock vamos a completar el registro de movimientos.
+                    # Después de cambiar el status en el stock, vamos a completar el registro de movimientos.
                     stock_movement = StockMovements(
                         stock_medicine_id=oldest_med.id,
-                        movment_type=MovementType.DISPENSE
                     )
                     session.add(stock_movement)
+
+                    # Cambiar el valor de movement_type aquí
+                    stock_movement.movement_type = MoveType.DISPENSE
                     session.commit()
+
+            return {"message": "Archivo cargado exitosamente"}
 
         else:
             for details in prescription_details:
@@ -65,7 +69,7 @@ async def create_dispense(prescription_id: int,
 
                             stock_movement = StockMovements(
                                 stock_medicine_id=medicine_dispensed.id,  # Asegúrate de tener el stock_medicine.id correcto
-                                movement_type=MovementType.DISPENSE  # Otra variable que defina el tipo de movimiento
+                                movement_type=MoveType.DISPENSE  # Otra variable que defina el tipo de movimiento
                             )
                             session.add(stock_movement)
                             session.commit()
@@ -76,5 +80,8 @@ async def create_dispense(prescription_id: int,
                            f"o la cantidad proporcionada no es suficiente, necesita {details.qty} y se "
                            f"proporcionaron {len(item.serials)}")
 
+            return {"message": "Archivo cargado exitosamente"}
+
     except HTTPException as e:
         raise e
+
